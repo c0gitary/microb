@@ -9,6 +9,7 @@
 #include <ctype.h>
 
 #include "logger.h"
+#include "utils.h"
 
 struct config
 {
@@ -22,25 +23,33 @@ struct config
     char* build_dir;
     char* bin_dir;
     char* include_dir;
-
-    uint32_t mcu_freq;
-    uint32_t baud;
+    char* mcu_freq;
+    char* baud;
 };
 
 
-enum
+enum config_type
 {
-    MB_CFG_PROJECT_NAME,
-    MB_CFG_MCU_NAME,
-    MB_CFG_MCU_FREQ,
-    MB_CFG_COMPILER,
-    MB_CFG_LINKER,
-    MB_CFG_UPLOADER,
-    MB_CFG_PROGRAMMER,
-    MB_CFG_BUILD_DIR,
-    MB_CFG_BIN_DIR,
-    MB_CFG_INCLUDE_DIR,
-    MB_CFG_BAUD
+    MB_CONFIG_TYPE_NULL,
+    MB_CONFIG_TYPE_NUMBER,
+    MB_CONFIG_TYPE_STRING,
+    MB_CONFIG_TYPE_ARRAY
+};
+
+
+enum config_attr
+{
+    MB_CONFIG_ATTR_PROJECT_NAME,
+    MB_CONFIG_ATTR_MCU_NAME,
+    MB_CONFIG_ATTR_MCU_FREQ,
+    MB_CONFIG_ATTR_COMPILER,
+    MB_CONFIG_ATTR_LINKER,
+    MB_CONFIG_ATTR_UPLOADER,
+    MB_CONFIG_ATTR_PROGRAMMER,
+    MB_CONFIG_ATTR_BUILD_DIR,
+    MB_CONFIG_ATTR_BIN_DIR,
+    MB_CONFIG_ATTR_INCLUDE_DIR,
+    MB_CONFIG_ATTR_BAUD
 };
 
 struct config* mb_config_init(const char* path);
