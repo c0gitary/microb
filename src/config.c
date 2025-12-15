@@ -2,11 +2,18 @@
 
 #define CONFIG_ATTR_FREE(__x) if(__x) free(__x)
 
-#define CONFIG_PUSH_VALUE(__config, __attr, __value) case __attr: {__config = __value; break;}
+#define CONFIG_PUSH_VALUE(__config, __attr, __value) \
+    case __attr: \
+    {\
+        __config = __value; \
+        if(__value) mb_log(MB_LOG_LEVEL_INFO, "Config set '%s'", __config); \
+        else mb_log(MB_LOG_LEVEL_WARN, "Value not found [[ %s ]]", config_template_keys[__attr]);\
+        break;\
+    }
 
 static const char* const __config_file = "microb.ini";
 
-#define size_keys 11
+#define size_keys 12
 static const char* const 
 config_template_keys[size_keys] = {
     "project_name",
@@ -19,13 +26,14 @@ config_template_keys[size_keys] = {
     "build_dir",
     "bin_dir",
     "include_dir",
+    "source_dir",
     "baud"
 };
 
 
 static inline
 int
-__config_find_cfg_file(const char* path)
+config_find_cfg_file(const char* path)
 {
     if(!path) return 0;
     DIR* dir = opendir(path);
@@ -45,7 +53,7 @@ mb_config_init(const char* path)
     struct config* cfg = (struct config*)malloc(sizeof(struct config));
     cfg->path = path;
 
-    if(__config_find_cfg_file(path)) return cfg;
+    if(config_find_cfg_file(path)) return cfg;
 
     FILE* cfg_file = fopen(__config_file, "w");
 
@@ -151,17 +159,17 @@ mb_config_parse(struct config** cfg)
                 {
                     switch(i)
                     {
-                        CONFIG_PUSH_VALUE((*cfg)->baud,         MB_CONFIG_ATTR_BAUD,        value);
                         CONFIG_PUSH_VALUE((*cfg)->project_name, MB_CONFIG_ATTR_PROJECT_NAME,value);
-                        CONFIG_PUSH_VALUE((*cfg)->build_dir,    MB_CONFIG_ATTR_BUILD_DIR,   value);
-                        CONFIG_PUSH_VALUE((*cfg)->bin_dir,      MB_CONFIG_ATTR_BIN_DIR,     value);
-                        CONFIG_PUSH_VALUE((*cfg)->include_dir,  MB_CONFIG_ATTR_INCLUDE_DIR, value);
+                        CONFIG_PUSH_VALUE((*cfg)->mcu_name,     MB_CONFIG_ATTR_MCU_NAME,    value);
+                        CONFIG_PUSH_VALUE((*cfg)->programmer,   MB_CONFIG_ATTR_PROGRAMMER,  value);
                         CONFIG_PUSH_VALUE((*cfg)->compiler,     MB_CONFIG_ATTR_COMPILER,    value);
                         CONFIG_PUSH_VALUE((*cfg)->linker,       MB_CONFIG_ATTR_LINKER,      value);
                         CONFIG_PUSH_VALUE((*cfg)->uploader,     MB_CONFIG_ATTR_UPLOADER,    value);
+                        CONFIG_PUSH_VALUE((*cfg)->build_dir,    MB_CONFIG_ATTR_BUILD_DIR,   value);
+                        CONFIG_PUSH_VALUE((*cfg)->bin_dir,      MB_CONFIG_ATTR_BIN_DIR,     value);
+                        CONFIG_PUSH_VALUE((*cfg)->src_dir,      MB_CONFIG_ATTR_SRC_DIR,     value);
                         CONFIG_PUSH_VALUE((*cfg)->mcu_freq,     MB_CONFIG_ATTR_MCU_FREQ,    value);
-                        CONFIG_PUSH_VALUE((*cfg)->mcu_name,     MB_CONFIG_ATTR_MCU_NAME,    value);
-                        CONFIG_PUSH_VALUE((*cfg)->programmer,   MB_CONFIG_ATTR_PROGRAMMER,  value);
+                        CONFIG_PUSH_VALUE((*cfg)->baud,         MB_CONFIG_ATTR_BAUD,        value);
                     }
                 }
             }
@@ -179,39 +187,40 @@ mb_config_parse(struct config** cfg)
     return 0;
 }
 
-void
-mb_config_print(struct config** cfg)
-{
-    if(cfg && *cfg)
-    {
-        mb_log(MB_LOG_LEVEL_INFO, "Project '%s'", (*cfg)->project_name);
-        mb_log(MB_LOG_LEVEL_INFO, "Programmer '%s'", (*cfg)->programmer);
-        mb_log(MB_LOG_LEVEL_INFO, "MCU '%s'", (*cfg)->mcu_name);
-        mb_log(MB_LOG_LEVEL_INFO, "MCU Freq '%s'", (*cfg)->mcu_freq);
-        mb_log(MB_LOG_LEVEL_INFO, "Baud '%s'", (*cfg)->baud);
-        mb_log(MB_LOG_LEVEL_INFO, "Build dir '%s'", (*cfg)->build_dir);
-        mb_log(MB_LOG_LEVEL_INFO, "Binary dir '%s'", (*cfg)->bin_dir);
-        mb_log(MB_LOG_LEVEL_INFO, "Include dir '%s'", (*cfg)->include_dir);
-        mb_log(MB_LOG_LEVEL_INFO, "Compiler '%s'", (*cfg)->compiler);
-        mb_log(MB_LOG_LEVEL_INFO, "Linker '%s'", (*cfg)->linker);
-        mb_log(MB_LOG_LEVEL_INFO, "Uploader '%s'", (*cfg)->uploader);
-    }
-}
+// void
+// mb_config_print(struct config** cfg)
+// {
+//     if(cfg && *cfg)
+//     {
+//         mb_log(MB_LOG_LEVEL_INFO, "Project '%s'", (*cfg)->project_name);
+//         mb_log(MB_LOG_LEVEL_INFO, "Programmer '%s'", (*cfg)->programmer);
+//         mb_log(MB_LOG_LEVEL_INFO, "MCU '%s'", (*cfg)->mcu_name);
+//         mb_log(MB_LOG_LEVEL_INFO, "MCU Freq '%s'", (*cfg)->mcu_freq);
+//         mb_log(MB_LOG_LEVEL_INFO, "Baud '%s'", (*cfg)->baud);
+//         mb_log(MB_LOG_LEVEL_INFO, "Build dir '%s'", (*cfg)->build_dir);
+//         mb_log(MB_LOG_LEVEL_INFO, "Binary dir '%s'", (*cfg)->bin_dir);
+//         mb_log(MB_LOG_LEVEL_INFO, "Include dir '%s'", (*cfg)->include_dir);
+//         mb_log(MB_LOG_LEVEL_INFO, "Compiler '%s'", (*cfg)->compiler);
+//         mb_log(MB_LOG_LEVEL_INFO, "Linker '%s'", (*cfg)->linker);
+//         mb_log(MB_LOG_LEVEL_INFO, "Uploader '%s'", (*cfg)->uploader);
+//     }
+// }
 
 void
 mb_config_free(struct config** cfg)
 {
     if(cfg && *cfg)
     {   
-        CONFIG_ATTR_FREE((*cfg)->project_name);
-        CONFIG_ATTR_FREE((*cfg)->mcu_name);
-        CONFIG_ATTR_FREE((*cfg)->programmer);
-        CONFIG_ATTR_FREE((*cfg)->compiler);
-        CONFIG_ATTR_FREE((*cfg)->linker);
-        CONFIG_ATTR_FREE((*cfg)->uploader);
+        CONFIG_ATTR_FREE((*cfg)->project_name); 
+        CONFIG_ATTR_FREE((*cfg)->mcu_name); 
+        CONFIG_ATTR_FREE((*cfg)->programmer); 
+        CONFIG_ATTR_FREE((*cfg)->compiler); 
+        CONFIG_ATTR_FREE((*cfg)->linker); 
+        CONFIG_ATTR_FREE((*cfg)->uploader); 
         CONFIG_ATTR_FREE((*cfg)->build_dir);
-        CONFIG_ATTR_FREE((*cfg)->bin_dir);
-        CONFIG_ATTR_FREE((*cfg)->include_dir);
+        CONFIG_ATTR_FREE((*cfg)->bin_dir); 
+        CONFIG_ATTR_FREE((*cfg)->src_dir); 
+        CONFIG_ATTR_FREE((*cfg)->baud); 
         free(*cfg);
         *cfg = NULL;
     }

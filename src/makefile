@@ -8,6 +8,8 @@ SOURCES = \
 	fileman.c \
 	logger.c \
 	utils.c \
+	generator_makefile.c \
+	mcu_avr.c \
 	main.c 
 
 OBJECTS = $(SOURCES:.c=.o)
@@ -27,4 +29,6 @@ config.o: config.c config.h logger.h utils.h
 fileman.o: fileman.c fileman.h utils.h config.h
 logger.o: logger.c logger.h 
 utils.o: utils.c utils.h 
+generator_makefile.o: generator_makefile.c generator.h logger.h config.h
+mcu_avr.o: mcu_avr.c mcu.h
 main.o: main.c fileman.h config.h

@@ -23,17 +23,9 @@ struct config
     char* build_dir;
     char* bin_dir;
     char* include_dir;
+    char* src_dir;
     char* mcu_freq;
     char* baud;
-};
-
-
-enum config_type
-{
-    MB_CONFIG_TYPE_NULL,
-    MB_CONFIG_TYPE_NUMBER,
-    MB_CONFIG_TYPE_STRING,
-    MB_CONFIG_TYPE_ARRAY
 };
 
 
@@ -49,6 +41,7 @@ enum config_attr
     MB_CONFIG_ATTR_BUILD_DIR,
     MB_CONFIG_ATTR_BIN_DIR,
     MB_CONFIG_ATTR_INCLUDE_DIR,
+    MB_CONFIG_ATTR_SRC_DIR,
     MB_CONFIG_ATTR_BAUD
 };
 
@@ -56,7 +49,7 @@ struct config* mb_config_init(const char* path);
 
 int mb_config_parse(struct config** cfg);
 
-void mb_config_print(struct config** cfg);
+// void mb_config_print(struct config** cfg);
 
 void mb_config_free(struct config** cfg);
 

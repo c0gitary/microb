@@ -1,5 +1,10 @@
 #include "fileman.h"
 
+
+#define fm_template_makefile_mcu_name(__mcu) "MCU = " __mcu
+#define fm_template_makefile_mcu_freq(__mcu) 
+
+
 #define fm_tmk_fwarn "CFWARN = -Wall -Wstrict-prototypes -Wl, --gc-sections -Wl, --relax\n"
 #define fm_tmk_fopt "CFOPT = -O3 -lm\n"
 #define fm_tmk_obj "__OBJ__ = $(__SRC__:.c=.o)\n"
