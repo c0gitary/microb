@@ -132,7 +132,6 @@ mb_generator__makefile(const struct config* config, enum gmk_type gtype)
 
                 if(mcu.code == 0 || mcu.name == 0)
                 {
-                    mb_log(MB_LOG_LEVEL_ERROR, "Generator", "MCU '%s' not found", config->mcu_name);
                     return 0;
                 }
   

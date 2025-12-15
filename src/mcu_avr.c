@@ -1,4 +1,5 @@
 #include "mcu.h"
+#include "logger.h"
 
 static const char* MCU_8_AVR[][2] = {
     {"attiny13", "t13"},
@@ -54,12 +55,19 @@ static const unsigned char mcu_8_avr_sz = sizeof(MCU_8_AVR) / sizeof(MCU_8_AVR[0
 struct mcu_data 
 get_mcu(const char* name)
 {
-    for(unsigned char i = 0; i < mcu_8_avr_sz; i++)
+    if(name)
     {
-        if(strcmp(MCU_8_AVR[i][0], name) == 0)
+        for(unsigned char i = 0; i < mcu_8_avr_sz; i++)
         {
-            return (struct mcu_data){.name = MCU_8_AVR[i][0], .code = MCU_8_AVR[i][1]};
+            if(strcmp(MCU_8_AVR[i][0], name) == 0)
+            {
+                mb_log(MB_LOG_LEVEL_INFO, "MCU", "Find MCU name '%s', code '%s'", MCU_8_AVR[i][0], MCU_8_AVR[i][1]);
+                return (struct mcu_data){.name = MCU_8_AVR[i][0], .code = MCU_8_AVR[i][1]};
+            }
         }
+    }
+    else {
+        mb_log(MB_LOG_LEVEL_ERROR, "MCU", "MCU name not found");
     }
 
     return (struct mcu_data){0, 0};

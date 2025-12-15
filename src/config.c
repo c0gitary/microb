@@ -6,7 +6,7 @@
     case __attr: \
     {\
         __config = __value; \
-        if(__value) mb_log(MB_LOG_LEVEL_INFO, "Config", "Set '%s'", __config); \
+        if(__value) mb_log(MB_LOG_LEVEL_INFO, "Config", "Value push '%s'", __config); \
         else mb_log(MB_LOG_LEVEL_WARN, "Config", "Value not found [[ %s ]]", config_template_keys[__attr]);\
         break;\
     }
@@ -53,14 +53,18 @@ mb_config_init(const char* path)
     struct config* cfg = (struct config*)malloc(sizeof(struct config));
     cfg->path = path;
 
+    mb_log(MB_LOG_LEVEL_INFO, "Config", "Current path '%s'", cfg->path);
+
     if(config_find_cfg_file(path)) return cfg;
 
     FILE* cfg_file = fopen(__config_file, "w");
 
+    mb_log(MB_LOG_LEVEL_INFO, "Config", "Create new config file '%s'", __config_file);
+
     for(int i = 0; i < size_keys; i++)
     {
-        fputs(config_template_keys[i], cfg_file);
-        fputs(" = \n", cfg_file);
+        fprintf(cfg_file, "%s = \"\"\n",  config_template_keys[i]);
+        mb_log(MB_LOG_LEVEL_INFO, "Config", "Push key '%s'", config_template_keys[i]);
     }
 
     fclose(cfg_file);
@@ -152,6 +156,7 @@ mb_config_parse(struct config** cfg)
                 }
             }
 
+            mb_log(MB_LOG_LEVEL_INFO, "Config", "Found '%s'", key);
 
             for(size_t i = 0; i < size_keys; i++)
             {
