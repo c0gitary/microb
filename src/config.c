@@ -6,8 +6,8 @@
     case __attr: \
     {\
         __config = __value; \
-        if(__value) mb_log(MB_LOG_LEVEL_INFO, "Config set '%s'", __config); \
-        else mb_log(MB_LOG_LEVEL_WARN, "Value not found [[ %s ]]", config_template_keys[__attr]);\
+        if(__value) mb_log(MB_LOG_LEVEL_INFO, "Config", "Set '%s'", __config); \
+        else mb_log(MB_LOG_LEVEL_WARN, "Config", "Value not found [[ %s ]]", config_template_keys[__attr]);\
         break;\
     }
 

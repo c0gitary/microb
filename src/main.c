@@ -11,7 +11,6 @@ main(int argc, char** argv)
 
     struct config* cfg = mb_config_init(cur_path);
 
-	
     // struct fileman* fm = mb_fm_init(cur_path);
 	
 	mb_config_parse(&cfg);

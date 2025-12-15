@@ -55,15 +55,19 @@ static const char* const gmk_data[][2] = {
 };
 
 
-static const char* const gmk_data__toolchain[] = {
-    GMK_DEFAULT_COMPILER__AVR,
-    GMK_DEFAULT_LINKER__AVR,
-    GMK_DEFAULT_UPLOADER__AVR
+static const char* const gmk_data__toolchain[][3] = {
+    { // __AVR
+        GMK_DEFAULT_COMPILER__AVR,
+        GMK_DEFAULT_LINKER__AVR,
+        GMK_DEFAULT_UPLOADER__AVR
+    }
 };
+
+#define GMK_GET__TOOLCHAIN(__gtype, __id) gmk_data__toolchain[__gtype][__id - GMK_ID_COMPILER]
 
 
 static void 
-GMK_SET(const enum gmk_type gtype, const enum gmk_id id, const char* attr, FILE* mk)
+gmk_set(enum gmk_type gtype, enum gmk_id id, const char* attr, FILE* mk)
 {
     if(!attr)
     {
@@ -71,23 +75,24 @@ GMK_SET(const enum gmk_type gtype, const enum gmk_id id, const char* attr, FILE*
         {
             if(id >= GMK_ID_COMPILER)
             {
-                mb_log(MB_LOG_LEVEL_WARN, "%s not found, set default '%s'", gmk_data[id][0], gmk_data__toolchain[id + gtype]);         
+                // mb_log(MB_LOG_LEVEL_INFO, "id = %d, cc = %s", id, gmk_data__toolchain[gtype][0]);
+                mb_log(MB_LOG_LEVEL_WARN, "Generator", "%s not found, set default '%s'", gmk_data[id][0], GMK_GET__TOOLCHAIN(gtype, id));         
                 fputs(gmk_data[id][0], mk);
                 fputs(" = ", mk);
-                fputs(gmk_data__toolchain[id + gtype], mk);
+                fputs(GMK_GET__TOOLCHAIN(gtype, id), mk);
                 fputs("\n\n", mk);
                 return;        
             }
             else 
             {
-                mb_log(MB_LOG_LEVEL_ERROR, "Value not found '%s'", gmk_data[id][0]);
+                mb_log(MB_LOG_LEVEL_ERROR, "Generator", "Value not found '%s'", gmk_data[id][0]);
                 return;
             }
         }
         
         else
         {
-            mb_log(MB_LOG_LEVEL_WARN, "%s not found, set default '%s'", gmk_data[id][0], gmk_data[id][1]);         
+            mb_log(MB_LOG_LEVEL_WARN, "Generator", "%s not found, set default '%s'", gmk_data[id][0], gmk_data[id][1]);         
             fputs(gmk_data[id][0], mk);
             fputs(" = ", mk);
             fputs(gmk_data[id][1], mk);
@@ -104,7 +109,7 @@ GMK_SET(const enum gmk_type gtype, const enum gmk_id id, const char* attr, FILE*
 
 
 int 
-mb_generator__makefile(const struct config* config, const enum gmk_type gtype)
+mb_generator__makefile(const struct config* config, enum gmk_type gtype)
 {
     if(config)
     {
@@ -112,23 +117,24 @@ mb_generator__makefile(const struct config* config, const enum gmk_type gtype)
         {
             case GMK_TYPE__AVR:
             {                
+                mb_log(MB_LOG_LEVEL_INFO, "Generator", "Generator Makefile type 'AVR'");
                 FILE* makefile = fopen("Makefile", "w");
                 if(makefile == NULL)
                 {
-                    mb_log(MB_LOG_LEVEL_ERROR, "Makefile not openning");
+                    mb_log(MB_LOG_LEVEL_ERROR,"Generator", "Makefile not openning");
                     return 0;
                 }
   
-                GMK_SET(GMK_TYPE__AVR, GMK_ID_PROJECT_NAME, config->project_name, makefile);
-                GMK_SET(GMK_TYPE__AVR, GMK_ID_BAUD, config->baud, makefile);
-                GMK_SET(GMK_TYPE__AVR, GMK_ID_MCU_NAME, config->mcu_name, makefile);
-                GMK_SET(GMK_TYPE__AVR, GMK_ID_MCU_FREQ, config->mcu_freq, makefile);
-                GMK_SET(GMK_TYPE__AVR, GMK_ID_COMPILER, config->compiler, makefile);
-                GMK_SET(GMK_TYPE__AVR, GMK_ID_LINKER, config->linker, makefile);
-                GMK_SET(GMK_TYPE__AVR, GMK_ID_UPLOADER, config->uploader, makefile);
-                GMK_SET(GMK_TYPE__AVR, GMK_ID_BINARY_DIR, config->bin_dir, makefile);
-                GMK_SET(GMK_TYPE__AVR, GMK_ID_BUILD_DIR, config->build_dir, makefile);
-                GMK_SET(GMK_TYPE__AVR, GMK_ID_SOURCE_DIR, config->src_dir, makefile);
+                gmk_set(GMK_TYPE__AVR, GMK_ID_PROJECT_NAME, config->project_name, makefile);
+                gmk_set(GMK_TYPE__AVR, GMK_ID_BAUD, config->baud, makefile);
+                gmk_set(GMK_TYPE__AVR, GMK_ID_MCU_NAME, config->mcu_name, makefile);
+                gmk_set(GMK_TYPE__AVR, GMK_ID_MCU_FREQ, config->mcu_freq, makefile);
+                gmk_set(GMK_TYPE__AVR, GMK_ID_COMPILER, config->compiler, makefile);
+                gmk_set(GMK_TYPE__AVR, GMK_ID_LINKER, config->linker, makefile);
+                gmk_set(GMK_TYPE__AVR, GMK_ID_UPLOADER, config->uploader, makefile);
+                gmk_set(GMK_TYPE__AVR, GMK_ID_BINARY_DIR, config->bin_dir, makefile);
+                gmk_set(GMK_TYPE__AVR, GMK_ID_BUILD_DIR, config->build_dir, makefile);
+                gmk_set(GMK_TYPE__AVR, GMK_ID_SOURCE_DIR, config->src_dir, makefile);
 
                 fclose(makefile);
 
@@ -140,6 +146,6 @@ mb_generator__makefile(const struct config* config, const enum gmk_type gtype)
     }
 
 
-    mb_log(MB_LOG_LEVEL_ERROR, "[Generator Makefile]\tConfig not found");
+    mb_log(MB_LOG_LEVEL_ERROR, "Generator", "[Generator Makefile]\tConfig not found");
     return 0;
 }

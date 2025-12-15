@@ -12,7 +12,7 @@ enum
 };
 
 
-void mb_log(int log_level, const char* fmt, ...);
+void mb_log(int log_level, const char* module, const char* fmt, ...);
 
 
 #endif // __MICROB_LOGGER_H__
