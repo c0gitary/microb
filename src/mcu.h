@@ -1,8 +1,6 @@
 #ifndef __MICROB_MCU_H__
 #define __MICROB_MCU_H__
 
-#include <string.h>
-
 struct mcu_data
 {
     const char* name;

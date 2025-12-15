@@ -1,3 +1,5 @@
 build
 test
 *.o
+src/microb
+src/microb.ini

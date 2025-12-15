@@ -1,5 +1,9 @@
 #include "logger.h"
 
+#include <stdio.h>
+#include <stdarg.h>
+
+
 #define MB_COLOR_RED     "\x1B[31m"
 #define MB_COLOR_GREEN   "\x1B[32m"
 #define MB_COLOR_YELLOW  "\x1B[33m"

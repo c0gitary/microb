@@ -25,10 +25,10 @@ microb: $(OBJECTS)
 clean:
 	rm -rf microb *.o
 
-config.o: config.c config.h
-fileman.o: fileman.c fileman.h
+config.o: config.c config.h logger.h utils.h
+# fileman.o: fileman.c fileman.h
 logger.o: logger.c logger.h 
 utils.o: utils.c utils.h 
-generator_makefile.o: generator_makefile.c generator.h
+generator_makefile.o: generator_makefile.c generator.h logger.h mcu.h
 mcu_avr.o: mcu_avr.c mcu.h logger.h
 main.o: main.c fileman.h config.h generator.h logger.h 

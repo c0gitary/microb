@@ -1,6 +1,9 @@
 #include "mcu.h"
 #include "logger.h"
 
+#include <string.h>
+
+
 static const char* MCU_8_AVR[][2] = {
     {"attiny13", "t13"},
     {"attiny13a", "t13a"},

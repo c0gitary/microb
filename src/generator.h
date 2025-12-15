@@ -1,11 +1,7 @@
 #ifndef __MICROB_GENERATOR_H__
 #define __MICROB_GENERATOR_H__
 
-#include <stdio.h>
-
 #include "config.h"
-#include "logger.h"
-#include "mcu.h"
 
 enum gmk_type
 {

@@ -8,9 +8,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "logger.h"
-#include "utils.h"
-
 struct config
 {
     const char* path;

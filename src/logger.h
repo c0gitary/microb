@@ -1,9 +1,6 @@
 #ifndef __MICROB_LOGGER_H__
 #define __MICROB_LOGGER_H__
 
-#include <stdio.h>
-#include <stdarg.h>
-
 enum log_level
 {
     MB_LOG_LEVEL_ERROR,

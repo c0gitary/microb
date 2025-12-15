@@ -1,4 +1,6 @@
 #include "config.h"
+#include "logger.h"
+#include "utils.h"
 
 #define CONFIG_ATTR_FREE(__x) if(__x) free(__x)
 
