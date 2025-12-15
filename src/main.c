@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 int
-main(int argc, char** argv)
+main()
 {
     char* cur_path = getcwd(NULL, 0);
 
