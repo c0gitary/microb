@@ -22,7 +22,7 @@
 #define MB_LOG_ERROR_PREFIX     MB_LOG_TEMPLATE_ERROR   MB_LOG_TEMPLATE_MODULE
 
 void
-mb_log(int log_level, const char* module, const char* fmt, ...)
+mb_log(const enum log_level log_level, const char* module, const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);

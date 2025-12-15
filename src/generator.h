@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "logger.h"
+#include "mcu.h"
 
 enum gmk_type
 {

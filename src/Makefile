@@ -2,7 +2,9 @@ PROJECT_NAME = rxr
 
 BAUD = 9600
 
-MCU = m328pb
+MCU_NAME = atmega328pb
+
+MCU_CODE = m328pb
 
 MCU_FREQ = 16000000
 
