@@ -24,7 +24,11 @@ DEPPATHS = $(addprefix $(DEPDIR)/, $(SOURCES:.c=.d))
 TARGET = $(BINDIR)/microb
 
 .PHONY: all dirs
-all: dirs $(TARGET)
+all: dirs $(TARGET) move
+
+.PHONY: move
+move: $(TARGET)
+	mv $(TARGET) ./test
 
 dirs:
 	@mkdir -p $(BINDIR) $(BUILDDIR) $(OBJDIR) $(DEPDIR)

@@ -1,4 +1,7 @@
 #include "utils.h"
+#include "ctype.h"
+
+static const char* const extSrcFile[] = {"c", "s"};
 
 int
 utils_is_ext(struct dirent** f, const char* ext)
@@ -15,7 +18,14 @@ utils_is_back(struct dirent** f)
 int
 utils_is_src_file(struct dirent** f)
 {
-    return utils_is_ext(f, ".c");
+    for(int i = 0; i < 2; i++)
+    {
+        if(utils_is_ext(f, extSrcFile[i]))
+        {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 void

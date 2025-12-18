@@ -2,6 +2,7 @@
 #define __MICROB_GENERATOR_H__
 
 #include "config.h"
+#include "fileman.h"
 
 enum gmk_type
 {
@@ -10,7 +11,7 @@ enum gmk_type
 
 
 
-int mb_generator__makefile(const struct config*, enum gmk_type);
+int mb_generator__makefile(const struct config*, enum gmk_type, const struct fileman*);
 
 
 #endif // __MICROB_GENERATOR_H__

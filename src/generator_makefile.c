@@ -76,8 +76,13 @@ static const char* const gmk_data__toolchain[][3] = {
 #define GMK_WRITE_VAR(__attr, __val, __mk) fprintf(__mk, "%s = %s\n\n", __attr, __val)
 
 
-static inline int 
-gmk_set(const enum gmk_type gtype, const enum gmk_id id, const char* attr, const struct mcu_data* mcu, FILE* mk)
+static inline 
+int 
+gmk_set(
+    const enum gmk_type gtype, 
+    const enum gmk_id id, 
+    const char* attr, 
+    const struct mcu_data* mcu, FILE* mk)
 {
     if(!attr)
     {
@@ -117,8 +122,27 @@ gmk_set(const enum gmk_type gtype, const enum gmk_id id, const char* attr, const
 }
 
 
+static inline
+int
+gmk_set_paths(const struct config* cfg, const struct fileman* fm, FILE* mk)
+{
+}
+
+
+#define GMK_SET_TARGET(t, d, f) t ": " d "\n\t" f
+
+static inline 
+int
+gmk_write_targets(const struct config* cfg, const struct fileman* fm, FILE* mk)
+{
+    fprintf(mk, GMK_SET_TARGET("all", "clean build", ""));
+    fprintf(mk, GMK_SET_TARGET("clean", "", "rm -rf %s/*.o %s/*.hex"), cfg->build_dir, cfg->bin_dir);
+    // fprintf(mk, GMK_SET_TARGET(""))
+}
+
+
 int 
-mb_generator__makefile(const struct config* config, enum gmk_type gtype)
+mb_generator__makefile(const struct config* config, enum gmk_type gtype, const struct fileman* fm)
 {
     if(config)
     {
