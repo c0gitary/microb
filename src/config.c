@@ -15,21 +15,24 @@
 
 static const char* const __config_file = "microb.ini";
 
-#define size_keys 12
+#define size_keys 15
 static const char* const 
 config_template_keys[size_keys] = {
     "project_name",
     "mcu_name",
     "mcu_freq",
     "compiler",
-    "linker",
+    "objcopy",
     "uploader",
     "programmer",
     "build_dir",
     "bin_dir",
     "include_dir",
     "source_dir",
-    "baud"
+    "baud",
+    "cflags",
+    "ldflags",
+    "cppflags"
 };
 
 
@@ -170,7 +173,7 @@ mb_config_parse(struct config** cfg)
                         CONFIG_PUSH_VALUE((*cfg)->mcu_name,     MB_CONFIG_ATTR_MCU_NAME,    value);
                         CONFIG_PUSH_VALUE((*cfg)->programmer,   MB_CONFIG_ATTR_PROGRAMMER,  value);
                         CONFIG_PUSH_VALUE((*cfg)->compiler,     MB_CONFIG_ATTR_COMPILER,    value);
-                        CONFIG_PUSH_VALUE((*cfg)->linker,       MB_CONFIG_ATTR_LINKER,      value);
+                        CONFIG_PUSH_VALUE((*cfg)->objcopy,      MB_CONFIG_ATTR_OBJCOPY,      value);
                         CONFIG_PUSH_VALUE((*cfg)->uploader,     MB_CONFIG_ATTR_UPLOADER,    value);
                         CONFIG_PUSH_VALUE((*cfg)->build_dir,    MB_CONFIG_ATTR_BUILD_DIR,   value);
                         CONFIG_PUSH_VALUE((*cfg)->bin_dir,      MB_CONFIG_ATTR_BIN_DIR,     value);
@@ -222,7 +225,7 @@ mb_config_free(struct config** cfg)
         CONFIG_ATTR_FREE((*cfg)->mcu_name); 
         CONFIG_ATTR_FREE((*cfg)->programmer); 
         CONFIG_ATTR_FREE((*cfg)->compiler); 
-        CONFIG_ATTR_FREE((*cfg)->linker); 
+        CONFIG_ATTR_FREE((*cfg)->objcopy); 
         CONFIG_ATTR_FREE((*cfg)->uploader); 
         CONFIG_ATTR_FREE((*cfg)->build_dir);
         CONFIG_ATTR_FREE((*cfg)->bin_dir); 

@@ -11,7 +11,6 @@ DEPDIR = $(BUILDDIR)/dep
 
 SOURCES = \
 	config.c \
-	fileman.c \
 	logger.c \
 	utils.c \
 	generator_makefile.c \
@@ -24,11 +23,7 @@ DEPPATHS = $(addprefix $(DEPDIR)/, $(SOURCES:.c=.d))
 TARGET = $(BINDIR)/microb
 
 .PHONY: all dirs
-all: dirs $(TARGET) move
-
-.PHONY: move
-move: $(TARGET)
-	mv $(TARGET) ./test
+all: dirs $(TARGET)
 
 dirs:
 	@mkdir -p $(BINDIR) $(BUILDDIR) $(OBJDIR) $(DEPDIR)

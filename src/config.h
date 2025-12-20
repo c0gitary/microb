@@ -15,7 +15,7 @@ struct config
     char* mcu_name;
     char* programmer;
     char* compiler;
-    char* linker;
+    char* objcopy;
     char* uploader;
     char* build_dir;
     char* bin_dir;
@@ -23,6 +23,9 @@ struct config
     char* src_dir;
     char* mcu_freq;
     char* baud;
+    char* cflags;
+    char* ldflags;
+    char* cxxflags;
 };
 
 
@@ -32,14 +35,17 @@ enum config_attr
     MB_CONFIG_ATTR_MCU_NAME,
     MB_CONFIG_ATTR_MCU_FREQ,
     MB_CONFIG_ATTR_COMPILER,
-    MB_CONFIG_ATTR_LINKER,
+    MB_CONFIG_ATTR_OBJCOPY,
     MB_CONFIG_ATTR_UPLOADER,
     MB_CONFIG_ATTR_PROGRAMMER,
     MB_CONFIG_ATTR_BUILD_DIR,
     MB_CONFIG_ATTR_BIN_DIR,
     MB_CONFIG_ATTR_INCLUDE_DIR,
     MB_CONFIG_ATTR_SRC_DIR,
-    MB_CONFIG_ATTR_BAUD
+    MB_CONFIG_ATTR_BAUD,
+    MB_CONFIG_ATTR_CFLAGS,
+    MB_CONFIG_ATTR_LDFLAGS,
+    MB_CONFIG_ATTR_CXXFLAGS
 };
 
 struct config* mb_config_init(const char* path);
