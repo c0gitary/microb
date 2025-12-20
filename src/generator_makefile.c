@@ -15,7 +15,7 @@
 #define GMK_DEFAULT_OBJCOPY__AVR "avr-objcopy"
 #define GMK_DEFAULT_UPLOADER__AVR "avrdude"
 #define GMK_DEFAULT_CFLAGS__AVR "-Os -Wall -Wextra"
-#define GMK_DEFAULT_LDFLAGS__AVR "-Wl, --gc-sections -Wl, --relax -Wl, --as-needed -Wl, --cref -Wl, --strip-all"
+#define GMK_DEFAULT_LDFLAGS__AVR "--data-sections -mrelax --strub=all -lm"
 #define GMK_DEFAULT_CXXFLAGS__AVR "-Os -Wall -Wextra"
 
 #define GMK_PROJECT_NAME "PROJECT_NAME"
@@ -166,18 +166,16 @@ gmk_set_paths(const struct config* cfg, FILE* mk)
 {
     fprintf(
         mk, 
-        "%s = $(wildcard $(%s)/*.c)\n" \
-        "%s = $(patsubst $(%s)/%s.c, $(%s)/%s.o, $(%s))\n"\
-        "%s = $(%s:.c=.o)\n\n"\
-        "TARGET = $(%s)/$(%s).hex\n"\
-        "%s = $(%s)/$(%s).elf\n"\
-        "%s = $(%s)/$(%s).hex\n\n",
+        "%s = $(wildcard $(%s)/*.c)\n" 
+        "%s = $(patsubst $(%s)/%s.c, $(%s)/%s.o, $(%s))\n"
+        "%s = $(%s:.c=.d)\n\n"
+        "TARGET = $(%s)/$(%s).hex\n"
+        "%s = $(%s)/$(%s).elf\n\n",
         GMK_SRCS, GMK_SOURCE_DIR,
         GMK_OBJS, GMK_SOURCE_DIR, "%", GMK_BUILD_DIR, "%", GMK_SRCS,
-        GMK_DEPS, GMK_OBJS,
+        GMK_DEPS, GMK_SRCS,
         GMK_BINARY_DIR, GMK_PROJECT_NAME,
-        GMK_TARGET_ELF, GMK_BINARY_DIR, GMK_PROJECT_NAME,
-        GMK_TARGET_HEX, GMK_BINARY_DIR, GMK_PROJECT_NAME
+        GMK_TARGET_ELF, GMK_BINARY_DIR, GMK_PROJECT_NAME
     );
 }
 
@@ -191,23 +189,22 @@ gmk_write_targets(FILE* mk)
     fprintf(
         mk,
         ".PHONY: all flash clean build\n"
-        "all: build\n\n"
-        "build: $(%s)\n\n"
-        "$(%s): $(%s)\n\t"
+        "all: dirs build\n\n"
+        "dirs:\n\t@mkdir -p $(%s)\n\t@mkdir -p $(%s)\n\n"
+        "build: $(TARGET)\n\n"
+        "$(TARGET): $(%s)\n\t"
         "$(%s) -O ihex -R .eeprom $< $@\n\n"
         "$(%s): $(%s)\n\t"
         "@mkdir -p $(%s)\n\t"
         "$(%s) -mmcu=$(%s) -DF_CPU=$(%s) $(%s) -o $@ $^\n\n"
         "$(%s)/%s.o: $(%s)/%s.c\n\t"
         "@mkdir -p $(%s)\n\t"
-        "$(%s) -mmcu=$(%s) -DF_CPU=$(%s) $(%s) -c $< -o $@\n\n"
+        "$(%s) -mmcu=$(%s) -DF_CPU=$(%s) -MMD -MF $(%s)/$*.d $(%s) -c $< -o $@\n\n"
         "-include $(%s)\n\n"
         "clean:\n\t"
-        "rm -rf $(%s) $(%s)\n\n"
-        ,
-    
-        GMK_TARGET_HEX,
-        GMK_TARGET_HEX, GMK_OBJS,
+        "rm -rf $(%s) $(%s)\n\n",
+        GMK_BINARY_DIR, GMK_BUILD_DIR,
+        GMK_OBJS,
         GMK_OBJCOPY,
         GMK_TARGET_ELF, GMK_OBJS,
         GMK_BINARY_DIR,
@@ -215,7 +212,7 @@ gmk_write_targets(FILE* mk)
         GMK_BUILD_DIR, "%",
         GMK_SOURCE_DIR, "%",
         GMK_BUILD_DIR,
-        GMK_COMPILER, GMK_MCU_NAME, GMK_MCU_FREQ, GMK_CFLAGS,
+        GMK_COMPILER, GMK_MCU_NAME, GMK_MCU_FREQ, GMK_BUILD_DIR, GMK_CFLAGS,
         GMK_DEPS,
         GMK_BUILD_DIR, GMK_BINARY_DIR
     );
