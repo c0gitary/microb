@@ -9,7 +9,6 @@ enum gmk_type
 };
 
 
-
 int mb_generator__makefile(const struct config*, enum gmk_type);
 
 

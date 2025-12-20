@@ -197,25 +197,6 @@ mb_config_parse(struct config** cfg)
     return 0;
 }
 
-// void
-// mb_config_print(struct config** cfg)
-// {
-//     if(cfg && *cfg)
-//     {
-//         mb_log(MB_LOG_LEVEL_INFO, "Project '%s'", (*cfg)->project_name);
-//         mb_log(MB_LOG_LEVEL_INFO, "Programmer '%s'", (*cfg)->programmer);
-//         mb_log(MB_LOG_LEVEL_INFO, "MCU '%s'", (*cfg)->mcu_name);
-//         mb_log(MB_LOG_LEVEL_INFO, "MCU Freq '%s'", (*cfg)->mcu_freq);
-//         mb_log(MB_LOG_LEVEL_INFO, "Baud '%s'", (*cfg)->baud);
-//         mb_log(MB_LOG_LEVEL_INFO, "Build dir '%s'", (*cfg)->build_dir);
-//         mb_log(MB_LOG_LEVEL_INFO, "Binary dir '%s'", (*cfg)->bin_dir);
-//         mb_log(MB_LOG_LEVEL_INFO, "Include dir '%s'", (*cfg)->include_dir);
-//         mb_log(MB_LOG_LEVEL_INFO, "Compiler '%s'", (*cfg)->compiler);
-//         mb_log(MB_LOG_LEVEL_INFO, "Linker '%s'", (*cfg)->linker);
-//         mb_log(MB_LOG_LEVEL_INFO, "Uploader '%s'", (*cfg)->uploader);
-//     }
-// }
-
 void
 mb_config_free(struct config** cfg)
 {

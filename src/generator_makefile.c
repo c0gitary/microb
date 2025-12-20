@@ -23,6 +23,7 @@
 #define GMK_BINARY_DIR "BIN_DIR"
 #define GMK_BUILD_DIR "BUILD_DIR"
 #define GMK_SOURCE_DIR "SOURCE_DIR"
+#define GMK_PROJECT_BUILD_DIR "PROJECT_BUILD_DIR"
 #define GMK_BAUD "BAUD"
 #define GMK_MCU_NAME "MCU"
 #define GMK_MCU_CODE "MCU_CODE"
@@ -146,15 +147,12 @@ gmk_set(
 
     if(gtype == GMK_TYPE__AVR)
     {
-        if(id == GMK_ID_MCU_NAME)
-        {
-            GMK_WRITE_VAR(GMK_MCU_NAME, mcu->name, mk);
-            GMK_WRITE_VAR(GMK_MCU_CODE, mcu->code, mk);
-            return 1;
-        }
+
     }
     
-
+    
+    GMK_WRITE_VAR(GMK_MCU_NAME, mcu->name, mk);
+    GMK_WRITE_VAR(GMK_MCU_CODE, mcu->code, mk);
     GMK_WRITE_VAR(gmk_data[id][0], attr, mk);
     return 1;
 }
@@ -162,17 +160,19 @@ gmk_set(
 
 static inline
 void
-gmk_set_paths(const struct config* cfg, FILE* mk)
+gmk_set_paths(FILE* mk)
 {
     fprintf(
         mk, 
+        "%s = $(%s)/$(%s)\n"
         "%s = $(wildcard $(%s)/*.c)\n" 
         "%s = $(patsubst $(%s)/%s.c, $(%s)/%s.o, $(%s))\n"
         "%s = $(%s:.c=.d)\n\n"
         "TARGET = $(%s)/$(%s).hex\n"
         "%s = $(%s)/$(%s).elf\n\n",
+        GMK_PROJECT_BUILD_DIR, GMK_BUILD_DIR, GMK_PROJECT_NAME,
         GMK_SRCS, GMK_SOURCE_DIR,
-        GMK_OBJS, GMK_SOURCE_DIR, "%", GMK_BUILD_DIR, "%", GMK_SRCS,
+        GMK_OBJS, GMK_SOURCE_DIR, "%", GMK_PROJECT_BUILD_DIR, "%", GMK_SRCS,
         GMK_DEPS, GMK_SRCS,
         GMK_BINARY_DIR, GMK_PROJECT_NAME,
         GMK_TARGET_ELF, GMK_BINARY_DIR, GMK_PROJECT_NAME
@@ -190,7 +190,7 @@ gmk_write_targets(FILE* mk)
         mk,
         ".PHONY: all flash clean build\n"
         "all: dirs build\n\n"
-        "dirs:\n\t@mkdir -p $(%s)\n\t@mkdir -p $(%s)\n\n"
+        "dirs:\n\t@mkdir -p $(%s)\n\t@mkdir -p $(%s)\n\t@mkdir -p $(%s)\n\n"
         "build: $(TARGET)\n\n"
         "$(TARGET): $(%s)\n\t"
         "$(%s) -O ihex -R .eeprom $< $@\n\n"
@@ -202,19 +202,19 @@ gmk_write_targets(FILE* mk)
         "$(%s) -mmcu=$(%s) -DF_CPU=$(%s) -MMD -MF $(%s)/$*.d $(%s) -c $< -o $@\n\n"
         "-include $(%s)\n\n"
         "clean:\n\t"
-        "rm -rf $(%s) $(%s)\n\n",
-        GMK_BINARY_DIR, GMK_BUILD_DIR,
+        "rm -rf $(TARGET) $(%s)\n\n",
+        GMK_BINARY_DIR, GMK_BUILD_DIR, GMK_PROJECT_BUILD_DIR,
         GMK_OBJS,
         GMK_OBJCOPY,
         GMK_TARGET_ELF, GMK_OBJS,
         GMK_BINARY_DIR,
         GMK_COMPILER, GMK_MCU_NAME, GMK_MCU_FREQ, GMK_LDFLAGS,
-        GMK_BUILD_DIR, "%",
+        GMK_PROJECT_BUILD_DIR, "%",
         GMK_SOURCE_DIR, "%",
-        GMK_BUILD_DIR,
-        GMK_COMPILER, GMK_MCU_NAME, GMK_MCU_FREQ, GMK_BUILD_DIR, GMK_CFLAGS,
+        GMK_PROJECT_BUILD_DIR,
+        GMK_COMPILER, GMK_MCU_NAME, GMK_MCU_FREQ, GMK_PROJECT_BUILD_DIR, GMK_CFLAGS,
         GMK_DEPS,
-        GMK_BUILD_DIR, GMK_BINARY_DIR
+        GMK_PROJECT_BUILD_DIR
     );
 }
 
@@ -224,68 +224,56 @@ mb_generator__makefile(const struct config* config, enum gmk_type gtype)
 {
     if(config)
     {
-        switch (gtype)
+        mb_log(MB_LOG_LEVEL_INFO, "Generator", "Generator Makefile type 'AVR'");
+        FILE* makefile = fopen("makefile", "w");
+        if(makefile == NULL)
         {
-            case GMK_TYPE__AVR:
-            {                
-                mb_log(MB_LOG_LEVEL_INFO, "Generator", "Generator Makefile type 'AVR'");
-                FILE* makefile = fopen("makefile", "w");
-                if(makefile == NULL)
-                {
-                    mb_log(MB_LOG_LEVEL_ERROR,"Generator", "Makefile not openning");
-                    return 0;
-                }
-
-                const struct mcu_data mcu = get_mcu(config->mcu_name);
-
-                if(!mcu.code || !mcu.name)
-                {
-                    fclose(makefile);
-                    remove("Makefile");
-                    mb_log(MB_LOG_LEVEL_ERROR, "Generator", "Fauiled to generate Makefile");
-                    return 0;
-                }
-
-                const uint8_t status =
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_PROJECT_NAME, config->project_name, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_PROGRAMMER, config->programmer, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_BAUD, config->baud, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_MCU_NAME, config->mcu_name, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_MCU_FREQ, config->mcu_freq, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_COMPILER, config->compiler, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_OBJCOPY, config->objcopy, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_UPLOADER, config->uploader, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_BINARY_DIR, config->bin_dir, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_BUILD_DIR, config->build_dir, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_SOURCE_DIR, config->src_dir, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_CFLAGS, config->cflags, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_LDFLAGS, config->ldflags, &mcu, makefile) &&
-                    gmk_set(GMK_TYPE__AVR, GMK_ID_CXXFLAGS, config->cxxflags, &mcu, makefile);
-
-                if(!status)
-                {
-                    fclose(makefile);
-                    remove("Makefile");
-                    mb_log(MB_LOG_LEVEL_ERROR, "Generator", "Fauiled to generate Makefile");
-                    return 0;
-                }
-
-                mb_log(MB_LOG_LEVEL_INFO, "Generator", "%s", config->src_dir);
-
-                gmk_set_paths(config, makefile);
-                gmk_write_targets(makefile);
-
-                mb_log(MB_LOG_LEVEL_INFO, "Generator", "Makefile generated successfully");
-                fclose(makefile);
-                return 1;
-            }
-
-            default: 
-            {
-                mb_log(MB_LOG_LEVEL_ERROR, "Generator", "Unknown generator type");
-                return 0;
-            }
+            mb_log(MB_LOG_LEVEL_ERROR,"Generator", "Makefile not openning");
+            return 0;
         }
+    
+        const struct mcu_data mcu = get_mcu(config->mcu_name);
+    
+        if(!mcu.code || !mcu.name)
+        {
+            fclose(makefile);
+            remove("Makefile");
+            mb_log(MB_LOG_LEVEL_ERROR, "Generator", "Fauiled to generate Makefile");
+            return 0;
+        }
+    
+        const uint8_t status =
+            gmk_set(gtype, GMK_ID_PROJECT_NAME, config->project_name, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_PROGRAMMER, config->programmer, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_BAUD, config->baud, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_MCU_NAME, config->mcu_name, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_MCU_FREQ, config->mcu_freq, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_COMPILER, config->compiler, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_OBJCOPY, config->objcopy, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_UPLOADER, config->uploader, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_BINARY_DIR, config->bin_dir, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_BUILD_DIR, config->build_dir, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_SOURCE_DIR, config->src_dir, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_CFLAGS, config->cflags, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_LDFLAGS, config->ldflags, &mcu, makefile) &&
+            gmk_set(gtype, GMK_ID_CXXFLAGS, config->cxxflags, &mcu, makefile);
+    
+        if(!status)
+        {
+            fclose(makefile);
+            remove("Makefile");
+            mb_log(MB_LOG_LEVEL_ERROR, "Generator", "Fauiled to generate Makefile");
+            return 0;
+        }
+    
+        mb_log(MB_LOG_LEVEL_INFO, "Generator", "%s", config->src_dir);
+    
+        gmk_set_paths(makefile);
+        gmk_write_targets(makefile);
+    
+        mb_log(MB_LOG_LEVEL_INFO, "Generator", "Makefile generated successfully");
+        fclose(makefile);
+        return 1;
         
     }
 
