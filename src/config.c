@@ -15,7 +15,7 @@
 
 static const char* const __config_file = "microb.ini";
 
-#define size_keys 15
+#define size_keys 16
 static const char* const 
 config_template_keys[size_keys] = {
     "project_name",
@@ -30,6 +30,7 @@ config_template_keys[size_keys] = {
     "include_dir",
     "source_dir",
     "baud",
+    "port",
     "cflags",
     "ldflags",
     "cppflags"
@@ -173,13 +174,14 @@ mb_config_parse(struct config** cfg)
                         CONFIG_PUSH_VALUE((*cfg)->mcu_name,     MB_CONFIG_ATTR_MCU_NAME,    value);
                         CONFIG_PUSH_VALUE((*cfg)->programmer,   MB_CONFIG_ATTR_PROGRAMMER,  value);
                         CONFIG_PUSH_VALUE((*cfg)->compiler,     MB_CONFIG_ATTR_COMPILER,    value);
-                        CONFIG_PUSH_VALUE((*cfg)->objcopy,      MB_CONFIG_ATTR_OBJCOPY,      value);
+                        CONFIG_PUSH_VALUE((*cfg)->objcopy,      MB_CONFIG_ATTR_OBJCOPY,     value);
                         CONFIG_PUSH_VALUE((*cfg)->uploader,     MB_CONFIG_ATTR_UPLOADER,    value);
                         CONFIG_PUSH_VALUE((*cfg)->build_dir,    MB_CONFIG_ATTR_BUILD_DIR,   value);
                         CONFIG_PUSH_VALUE((*cfg)->bin_dir,      MB_CONFIG_ATTR_BIN_DIR,     value);
                         CONFIG_PUSH_VALUE((*cfg)->src_dir,      MB_CONFIG_ATTR_SRC_DIR,     value);
                         CONFIG_PUSH_VALUE((*cfg)->mcu_freq,     MB_CONFIG_ATTR_MCU_FREQ,    value);
                         CONFIG_PUSH_VALUE((*cfg)->baud,         MB_CONFIG_ATTR_BAUD,        value);
+                        CONFIG_PUSH_VALUE((*cfg)->port,         MB_CONFIG_ATTR_PORT,        value);
                     }
                 }
             }

@@ -1,5 +1,5 @@
-#ifndef CONF_H
-#define CONF_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #include <dirent.h>
 #include <stdint.h>
@@ -23,6 +23,7 @@ struct config
     char* src_dir;
     char* mcu_freq;
     char* baud;
+    char* port;
     char* cflags;
     char* ldflags;
     char* cxxflags;
@@ -43,6 +44,7 @@ enum config_attr
     MB_CONFIG_ATTR_INCLUDE_DIR,
     MB_CONFIG_ATTR_SRC_DIR,
     MB_CONFIG_ATTR_BAUD,
+    MB_CONFIG_ATTR_PORT,
     MB_CONFIG_ATTR_CFLAGS,
     MB_CONFIG_ATTR_LDFLAGS,
     MB_CONFIG_ATTR_CXXFLAGS
@@ -52,8 +54,6 @@ struct config* mb_config_init(const char* path);
 
 int mb_config_parse(struct config** cfg);
 
-// void mb_config_print(struct config** cfg);
-
 void mb_config_free(struct config** cfg);
 
-#endif // CONF_H
+#endif // CONFIG_H
